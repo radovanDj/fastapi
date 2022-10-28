@@ -96,13 +96,13 @@ async def dodajKrozBodi(podt: Podatak):
 async def izmeni(id: int, ime:Optional[str] = None ,prezime: Optional[str] = None ):
     for vel in velikani:
         if vel.id==id:
-            if ime !=None:
+            if ime !=None:                
                 vel.ime=ime
             if prezime !=None:
                 vel.prezime=prezime
             return vel    
     raise HTTPException(status_code=503, detail="nema gi sa tim rednim brojem")       
-    return Podatak(id,ime,prezime) 
+    
     
 async def vratisve():
     await sleep(2)
