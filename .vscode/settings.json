@@ -1,3 +1,5 @@
 {
-    "python.analysis.typeCheckingMode": "basic"
+    "python.analysis.typeCheckingMode": "basic",
+    "sqltools.useNodeRuntime": true,
+    "python.formatting.provider": "autopep8"
 }
