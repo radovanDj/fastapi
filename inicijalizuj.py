@@ -15,7 +15,7 @@ def get_db():
         db.close()
 
 
-def inicijalizuj(baza: Session = Depends(get_db)):
+def inicijalizuj(baza: Session):
     p1 = Podatak(ime="NIkola", prezime="Tesla")
     p2 = Podatak(ime="Mihajlo", prezime="Pupin")
     p3 = Podatak(ime="Radovan", prezime="Damjanovic")
@@ -33,3 +33,13 @@ def inicijalizuj(baza: Session = Depends(get_db)):
     baza.refresh(unos3)
 
     baza.close()
+
+
+def obrisiSVE(baza: Session):
+    testPodaci = baza.query(dbmodel.velikan).all()
+    for red in testPodaci:
+        baza.delete(red)
+    baza.commit()
+
+    # red = baza.query(dbmodel.velikan).first()
+    # baza.delete(red)

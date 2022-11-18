@@ -4,7 +4,7 @@ from typing import List, Optional
 from anyio import create_task_group, run, sleep
 from sqlalchemy.orm import Session
 import dbmodel
-from inicijalizuj import get_db, inicijalizuj
+from inicijalizuj import get_db, inicijalizuj, obrisiSVE
 from database import SessionLocal, engine
 from fastapi import Depends, FastAPI, HTTPException, Path
 
@@ -16,10 +16,12 @@ app = FastAPI()
 
 dbmodel.Base.metadata.create_all(bind=engine)
 
-
-if dbmodel.velikan.id == None:
-    inicijalizuj()
-
+privremenaSesija = Session(engine)
+# obrisiSVE(privremenaSesija)
+testPodaci = privremenaSesija.query(dbmodel.velikan).all()
+if len(testPodaci) == 0:
+    inicijalizuj(Session(engine))
+privremenaSesija.close()
 # TODO dodaj uslov ako je baza prazna da se izvrsi inicijalizacija
 # p1 = Podatak(ime="NIkola", prezime="Tesla")
 # p2 = Podatak(ime="Mihajlo", prezime="Pupin")
