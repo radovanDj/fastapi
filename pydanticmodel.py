@@ -1,5 +1,5 @@
 from dataclasses import Field
-from pydantic import BaseModel,Field
+from pydantic import BaseModel, Field
 
 
 # ovo je schemas.py fajl koji u FastAPI dokumentaciji postoji
@@ -8,6 +8,13 @@ class Podatak(BaseModel):
     id - redni broj
     ime - ime coeka
     prezime - prezime coeka
-    """    
-    ime:str=Field(min_length=1)
-    prezime:str=Field(min_length=1)
+    """
+    ime: str = Field(min_length=1)
+    prezime: str = Field(min_length=1)
+
+    class Config:
+        """ovo je za pydantic i sluzi da se prenesu neke informacije pydantic-u za mapiranje
+        """
+        orm_mode = True
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True

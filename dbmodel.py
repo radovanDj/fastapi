@@ -8,8 +8,5 @@ class velikan(Base):
     __tablename__ = "velikani"
 
     id = Column(Integer, primary_key=True, index=True)
-    ime = Column(String)
-    prezime = Column(String)    
-
-
-
+    ime = Column(String(255), nullable=True)
+    prezime = Column(String(255), nullable=True)
