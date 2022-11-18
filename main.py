@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from anyio import create_task_group, run, sleep
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 import dbmodel
 from inicijalizuj import get_db, inicijalizuj, obrisiSVE
 from database import SessionLocal, engine
@@ -21,8 +22,12 @@ privremenaSesija = Session(engine)
 testPodaci = privremenaSesija.query(dbmodel.velikan).all()
 if len(testPodaci) == 0:
     inicijalizuj(Session(engine))
+# rez = privremenaSesija.query(dbmodel.velikan).first()
+# rez = privremenaSesija.query(dbmodel.velikan).filter(
+#     velikan.ime == 'Radovan').first()
+# print(rez.ime + ", prezime: " + rez.prezime)
 privremenaSesija.close()
-# TODO dodaj uslov ako je baza prazna da se izvrsi inicijalizacija
+
 # p1 = Podatak(ime="NIkola", prezime="Tesla")
 # p2 = Podatak(ime="Mihajlo", prezime="Pupin")
 # p3 = Podatak(ime="Radovan", prezime="Damjanovic")
@@ -36,39 +41,61 @@ def root(db: Session = Depends(get_db)):
     return db.query(dbmodel.velikan).all()
 
 
-# @app.get("/velikan/{id}")
-# async def citaj(
-#     id: int = Path(..., description=" unesi identifikacioni broj velikana")
-# ):
-#     for vel in velikani:
-#         if vel.id == id:
-#             return vel
-#     return "nema gi sa tim rednim brojem"
-#     raise HTTPException(status_code=404, detail="nema gi sa tim rednim brojem")
+@app.get("/velikan/{id}")
+async def citaj(db: Session = Depends(get_db),
+                id: int = Path(..., description=" unesi identifikacioni broj velikana")):
+    svi = db.query(dbmodel.velikan).all()
+    for vel in svi:
+        if vel.id == id:
+            return vel
+    return "nema gi sa tim rednim brojem"
+    # raise HTTPException(status_code=404, detail="nema gi sa tim rednim brojem")
 
 
-# @app.post("/velikan/{id}")
-# async def dodaj(id: int, ime: str, prezime: str):
-#        for vel in velikani:
-#         if vel.id == id:
-#             raise HTTPException(
-#                 status_code=503, detail="ovaj redni broj vec postoji")
-#         if vel.ime == ime and vel.prezime == prezime:
-#             raise HTTPException(
-#                 status_code=503, detail="ovaj velikan vec postoji")
-#     velikani.append(Podatak(id=id, ime=ime, prezime=prezime))
-#     return Podatak(id=id, ime=ime, prezime=prezime)
+@app.post("/velikan/{ime}/{prezime}")
+async def dodaj(ime: str, prezime: str, db: Session = Depends(get_db)):
+    for vel in db.query(dbmodel.velikan).all():
+        # if vel.id == id:
+        #     raise HTTPException(
+        #         status_code=503, detail="ovaj redni broj vec postoji")
+        if vel.ime == ime and vel.prezime == prezime:
+            raise HTTPException(
+                status_code=503, detail="ovaj velikan vec postoji")
+        podt = Podatak(ime=ime, prezime=prezime)
+        try:
+            db.add(dbmodel.velikan(**podt.dict()))
+            db.commit()
+            ret = db.query(dbmodel.velikan).filter(
+                velikan.ime == ime, velikan.prezime == prezime).all()
+        except:
+            ret = HTTPException(
+                status_code=503, detail="nesto se iscasilo")
+
+        return ret
 
 
 @app.post("/velikan")
 async def dodajKrozBodi(podt: Podatak, db: Session = Depends(get_db)):
-    velikan_model = dbmodel.velikan()
-    velikan_model.ime = podt.ime
-    velikan_model.prezime = podt.prezime
+    """_summary_
 
-    db.add(velikan_model)
-    db.commit()
-    return podt
+    Args:
+        podt (Podatak): model podatka{"ime": "string", "prezime": "string"}
+
+
+    Returns:
+        dbmodel.velikan: dbmodel podatka{"id": "int","ime": "string", "prezime": "string"}
+    """
+    try:
+        novVelikan = dbmodel.velikan(**podt.dict())
+        db.add(novVelikan)
+        db.commit()
+        ret = db.query(dbmodel.velikan).filter(
+            velikan.ime == novVelikan.ime, velikan.prezime == novVelikan.prezime).all()
+    except:
+        ret = HTTPException(
+            status_code=503, detail="nesto se iscasilo")
+
+    return ret
 
 
 # @app.put("/velikan/{id}")

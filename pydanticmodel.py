@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 # ovo je schemas.py fajl koji u FastAPI dokumentaciji postoji
 class Podatak(BaseModel):
     """ovo je klasa koja definise velikana i u sebi ima 
-    id - redni broj
     ime - ime coeka
     prezime - prezime coeka
     """
@@ -17,4 +16,4 @@ class Podatak(BaseModel):
         """
         orm_mode = True
         allow_population_by_field_name = True
-        arbitrary_types_allowed = True
+        arbitrary_types_allowed = False
