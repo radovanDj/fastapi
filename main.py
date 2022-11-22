@@ -1,9 +1,7 @@
 from dataclasses import dataclass
-from typing import List, Optional
 
 from anyio import create_task_group, run, sleep
 from sqlalchemy.orm import Session
-from sqlalchemy import select
 import dbmodel
 from inicijalizuj import get_db, inicijalizuj, obrisiSVE
 from database import SessionLocal, engine
@@ -67,9 +65,8 @@ async def dodaj(ime: str, prezime: str, db: Session = Depends(get_db)):
             db.commit()
             ret = db.query(dbmodel.velikan).filter(
                 velikan.ime == ime, velikan.prezime == prezime).all()
-        except:
-            ret = HTTPException(
-                status_code=503, detail="nesto se iscasilo")
+        except Exception as e:
+            return e
 
         return ret
 
@@ -91,50 +88,57 @@ async def dodajKrozBodi(podt: Podatak, db: Session = Depends(get_db)):
         db.commit()
         ret = db.query(dbmodel.velikan).filter(
             velikan.ime == novVelikan.ime, velikan.prezime == novVelikan.prezime).all()
-    except:
-        ret = HTTPException(
-            status_code=503, detail="nesto se iscasilo")
+    except Exception as e:
+        return e
 
     return ret
 
 
-# @app.put("/velikan/{id}")
-# async def izmeni(id: int, ime: Optional[str] = None, prezime: Optional[str] = None):
-#     for vel in velikani:
-#         if vel.id == id:
-#             if ime != None:
-#                 vel.ime = ime
-#             if prezime != None:
-#                 vel.prezime = prezime
-#             return vel
-#     raise HTTPException(status_code=503, detail="nema gi sa tim rednim brojem")
+@app.put("/velikan/{id}")
+async def izmeni(id: int, podt: Podatak, db: Session = Depends(get_db)):
+    for vel in db.query(dbmodel.velikan).all():
+        if vel.id == id:
+            try:
+                if vel.ime != podt.ime:
+                    vel.ime = podt.ime
+                if vel.prezime != podt.prezime:
+                    vel.prezime = podt.prezime
+                return vel
+            except Exception as e:
+                return e
+
+    return "nema gi sa tim rednim brojem"
 
 
 async def vratisve():
     await sleep(2)
 
 
-# @app.get("/velikani")
-# async def citajsve():
-#     async with create_task_group() as tg:
-#         await tg.spawn(vratisve)
-#         await tg.spawn(vratisve)
-#         await tg.spawn(vratisve)
-#         await tg.spawn(vratisve)
-#         await tg.spawn(vratisve)
+@app.get("/velikani")
+async def citajsve(db: Session = Depends(get_db)):
+    async with create_task_group() as tg:
+        await tg.spawn(vratisve)
+        await tg.spawn(vratisve)
+        await tg.spawn(vratisve)
+        await tg.spawn(vratisve)
+        await tg.spawn(vratisve)
 
-#         # ceka se 2 sec a trebalo bi 6
-#     return velikani
+        # ceka se 2 sec a trebalo bi 10
+    return db.query(dbmodel.velikan).all()
 
 
-# @app.delete("/velikan/{id}")
-# async def brisi(id: int):
-#     """
-#     id: unesi identifikacioni broj velikana kog zelis da obrises sa liste
-#     """
-#     for vel in velikani:
-#         if vel.id == id:
-#             velikani.remove(vel)
-#             return "uspesno obrisan"
-#     return "nema gi sa tim rednim brojem"
-#     raise HTTPException(status_code=404, detail="nema gi sa tim rednim brojem")
+@app.delete("/velikan/{id}")
+async def brisi(id: int, db: Session = Depends(get_db)):
+    """
+    id: unesi identifikacioni broj velikana kog zelis da obrises sa liste
+    """
+    for vel in db.query(dbmodel.velikan).all():
+        if vel.id == id:
+            try:
+                db.delete(vel)
+                db.commit()
+                return db.query(dbmodel.velikan).all()
+            except Exception as e:
+                return e
+
+    return "nema gi sa tim rednim brojem"

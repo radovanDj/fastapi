@@ -8,8 +8,8 @@ class Podatak(BaseModel):
     ime - ime coeka
     prezime - prezime coeka
     """
-    ime: str = Field(min_length=1)
-    prezime: str = Field(min_length=1)
+    ime: str = Field(default="")
+    prezime: str = Field(default="")
 
     class Config:
         """ovo je za pydantic i sluzi da se prenesu neke informacije pydantic-u za mapiranje
