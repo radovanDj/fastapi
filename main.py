@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 from anyio import create_task_group, run, sleep
 from sqlalchemy.orm import Session
@@ -95,14 +96,36 @@ async def dodajKrozBodi(podt: Podatak, db: Session = Depends(get_db)):
 
 
 @app.put("/velikan/{id}")
-async def izmeni(id: int, podt: Podatak, db: Session = Depends(get_db)):
+async def izmeni_krozPodatak(id: int, podt: Podatak, db: Session = Depends(get_db)):
     for vel in db.query(dbmodel.velikan).all():
         if vel.id == id:
             try:
-                if vel.ime != podt.ime:
+                if len(podt.ime) != 0 and vel.ime != podt.ime:
                     vel.ime = podt.ime
-                if vel.prezime != podt.prezime:
+                    db.commit()
+                if len(podt.prezime) != 0 and vel.prezime != podt.prezime:
                     vel.prezime = podt.prezime
+                    db.commit()
+                return vel
+            except Exception as e:
+                return e
+
+    return "nema gi sa tim rednim brojem"
+
+
+@app.put("/velikan")
+async def izmeni(id: int, ime: Optional[str] = "", prezime: Optional[str] = "", db: Session = Depends(get_db)):
+    for vel in db.query(dbmodel.velikan).all():
+        if vel.id == id:
+            try:
+                if ime != "" and vel.ime != ime:
+                    vel.ime = ime
+                    db.commit()
+
+                if prezime != "" and vel.prezime != prezime:
+                    vel.prezime = prezime
+                    db.commit()
+
                 return vel
             except Exception as e:
                 return e
