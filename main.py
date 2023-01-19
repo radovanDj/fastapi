@@ -47,8 +47,8 @@ async def citaj(db: Session = Depends(get_db),
     for vel in svi:
         if vel.id == id:
             return vel
-    return "nema gi sa tim rednim brojem"
-    # raise HTTPException(status_code=404, detail="nema gi sa tim rednim brojem")
+    # return "nema gi sa tim rednim brojem"
+    raise HTTPException(status_code=404, detail="nema gi sa tim rednim brojem")
 
 
 @app.post("/velikan/{ime}/{prezime}")
