@@ -48,18 +48,16 @@ async def citaj(db: Session = Depends(get_db),
         if vel.id == id:
             return vel
     # return "nema gi sa tim rednim brojem"
-    raise HTTPException(status_code=404, detail="nema gi sa tim rednim brojem")
+    raise HTTPException(status_code=404, detail="nema gi sa tim rednim brojem",
+                        headers={"X-Header_Error": "Nema velikana sa tim rednim brojem"})
 
 
 @app.post("/velikan/{ime}/{prezime}")
 async def dodaj(ime: str, prezime: str, db: Session = Depends(get_db)):
     for vel in db.query(dbmodel.velikan).all():
-        # if vel.id == id:
-        #     raise HTTPException(
-        #         status_code=503, detail="ovaj redni broj vec postoji")
         if vel.ime == ime and vel.prezime == prezime:
-            raise HTTPException(
-                status_code=503, detail="ovaj velikan vec postoji")
+            raise HTTPException(status_code=503, detail="Ovaj velikan vec postoji",
+                                headers={"X-Header_Error": "Ovaj velikan vec postoji pa se ne moze upisati opet"})
         podt = Podatak(ime=ime, prezime=prezime)
         try:
             db.add(dbmodel.velikan(**podt.dict()))
