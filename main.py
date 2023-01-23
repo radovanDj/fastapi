@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 import dbmodel
 from inicijalizuj import get_db, inicijalizuj, obrisiSVE
 from database import SessionLocal, engine
-from fastapi import Depends, FastAPI, HTTPException, Path
+from fastapi import Depends, FastAPI, HTTPException, Path, Form
 
 from dbmodel import velikan
 from pydanticmodel import Podatak
@@ -50,6 +50,12 @@ async def citaj(db: Session = Depends(get_db),
     # return "nema gi sa tim rednim brojem"
     raise HTTPException(status_code=404, detail="nema gi sa tim rednim brojem",
                         headers={"X-Header_Error": "Nema velikana sa tim rednim brojem"})
+
+
+@app.post("/velikan/login")
+async def velikan_login(username: str = Form(), password: str = Form()):
+    # samo test forme
+    return {"username": username, "password": password}
 
 
 @app.post("/velikan/{ime}/{prezime}")
