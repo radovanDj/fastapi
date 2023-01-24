@@ -5,6 +5,7 @@ from database import Base
 
 
 class velikan(Base):
+    # ovako se definise naziv tabele
     __tablename__ = "velikani"
 
     id = Column(Integer, primary_key=True, index=True)

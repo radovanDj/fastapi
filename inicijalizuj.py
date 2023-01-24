@@ -8,6 +8,7 @@ import dbmodel
 def get_db():
     db = SessionLocal()
     try:
+        # yield samo daje db na upotrebu, umesto return koji vracaobjekat i zatvara f-ju get_db
         yield db
     except:
         raise Exception("nije povezana baza u f-ji get_db")
