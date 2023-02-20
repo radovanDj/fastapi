@@ -7,12 +7,16 @@ import dbmodel
 from inicijalizuj import get_db, inicijalizuj, obrisiSVE
 from database import SessionLocal, engine
 from fastapi import Depends, FastAPI, HTTPException, Path, Form
-
+import uvicorn
 from dbmodel import velikan
 from pydanticmodel import Podatak
 
 
 app = FastAPI()
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", reload=True, log_level="debug")
 
 dbmodel.Base.metadata.create_all(bind=engine)
 
