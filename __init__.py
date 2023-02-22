@@ -1,14 +1,10 @@
-import pip
 import subprocess
-import sys
-import os
+
 
 # check for required packages
-putanja_paketa = os.path.dirname(__file__)+"requirements.txt"
 try:
-    subprocess.run(
-        ["pip", "install", "-r ", putanja_paketa], shell=True)
-    print("instalira svaki put za svaki slucaj requirements.txt")
+    subprocess.call(f"pip3 install --ignore-installed -r requirements.txt")
+    print("instalira requirements.txt ako nesto fali")
 
 except Exception as e:
     print(e)
