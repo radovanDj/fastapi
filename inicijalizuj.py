@@ -1,8 +1,24 @@
+import os
+import subprocess
+import sys
 from database import SessionLocal, engine
 from sqlalchemy.orm import Session
 from fastapi import Depends, FastAPI, HTTPException, Path
 from pydanticmodel import Podatak
 import dbmodel
+
+
+@staticmethod
+def instalacija_paketa():
+    try:
+        subprocess.run("python -m pip install --upgrade pip")
+        subprocess.run("pip3 install --ignore-installed -r requirements.txt")
+        print("instalira requirements.txt ako nesto fali")
+    except Exception as e:
+        print("neuspesno instaliranje paketa, ovo su paketi, pa probaj rucno")
+        print(os.path.join(os.getcwd(), "requirements.txt"))
+        print(e)
+        sys.exit(1)
 
 
 def get_db():

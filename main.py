@@ -1,37 +1,28 @@
-import subprocess
-from pydanticmodel import Podatak
-from dbmodel import velikan
-from dataclasses import dataclass
-from typing import Optional
-from anyio import create_task_group, run, sleep
-from sqlalchemy.orm import Session
-import dbmodel
-from inicijalizuj import get_db, inicijalizuj, obrisiSVE
 from database import SessionLocal, engine
+from fastapi import Depends, FastAPI, HTTPException, Path, Form
+import uvicorn
+import dbmodel
+from sqlalchemy.orm import Session
+from anyio import create_task_group, run, sleep
+from typing import Optional
+from dataclasses import dataclass
+from dbmodel import velikan
+from pydanticmodel import Podatak
+import sys
+import subprocess
+import os
+from inicijalizuj import *
 
-try:
-    import uvicorn
-    from fastapi import Depends, FastAPI, HTTPException, Path, Form
-
-except Exception as e:
-    print("krece instalacija potrebnih paketa")
-    try:
-        subprocess.call("pip3 install --ignore-installed -r requirements.txt")
-        print("instalira requirements.txt ako nesto fali")
-
-        import uvicorn
-        from fastapi import Depends, FastAPI, HTTPException, Path, Form
-
-    except Exception as e:
-        print(e)
-
+# instalacija_paketa()
+# trenutno nece jer ima probleme sa autorizacijom kad ide preko koda
+# kad se kaze pip3 install --ignore-installed -r requirements.txt u konzoli sve je uredu
 
 app = FastAPI()
 
 # ako ja pokrecem aplikaciju, da se odmah pokrene i server
 if __name__ == "__main__":
     uvicorn.run("main:app", port=8000, reload=True, log_level="debug")
-# uvicorn main:app --reload
+# a u konzolli kucam-> uvicorn main:app --reload
 
 
 dbmodel.Base.metadata.create_all(bind=engine)
